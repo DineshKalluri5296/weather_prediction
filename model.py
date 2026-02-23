@@ -49,7 +49,7 @@ with mlflow.start_run() as run:
         artifact_path="model",
         registered_model_name="SeattleWeatherModel5"
     )
-    joblib.dump(model, "model.pkl")
+    # joblib.dump(model, "model.pkl")
     print("Model saved locally as model.pkl")
 # -----------------------------
 # 4️⃣ Add Description to Latest Version
