@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-# from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+# from sklearn.tree import DecisionTreeClassifier
 # from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, precision_score, recall_score, f1_score 
 import mlflow.sklearn
@@ -24,13 +24,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 with mlflow.start_run() as run:
 
-    # model = RandomForestClassifier(
-    #     n_estimators=100,
-    #     max_depth=10,
-    #     random_state=42
-    # )
+    model = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=10,
+        random_state=42
+    )
     # model=LogisticRegression()
-    model=DecisionTreeClassifier()
+    # model=DecisionTreeClassifier()
     model.fit(X_train, y_train)
 
     pred = model.predict(X_test)
