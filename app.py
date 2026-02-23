@@ -1,68 +1,85 @@
-import mlflow
+import boto3
 import pandas as pd
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
-import time
 import joblib
-# -----------------------------
-# 1️⃣ Set MLflow Tracking Server
-# -----------------------------
-
-model = joblib.load("model.pkl")
-mlflow.set_tracking_uri("http://98.80.75.155:5000/")
-
-# Optional: create separate experiment for inference logs
-mlflow.set_experiment("Seattle_weather_prediction12")
-
-# # Load latest model version
-# model_name = "SeattleWeatherModel"
-# model = mlflow.pyfunc.load_model(f"models:/{model_name}/latest")
+import os
 
 # -----------------------------
-# 2️⃣ Create FastAPI App
+# S3 Model Configuration
 # -----------------------------
+
+BUCKET_NAME = "seattle-ml-app"
+MODEL_KEY = "models/latest/model.pkl"
+LOCAL_MODEL_PATH = "model.pkl"
+
+def download_model():
+
+    if os.path.exists(LOCAL_MODEL_PATH):
+        print("Model already exists locally.")
+        return
+
+    try:
+        s3 = boto3.client("s3")
+
+        print("Downloading model from S3...")
+
+        s3.download_file(
+            BUCKET_NAME,
+            MODEL_KEY,
+            LOCAL_MODEL_PATH
+        )
+
+        print("Model downloaded successfully.")
+
+    except Exception as e:
+        print("S3 Model Download Error:", str(e))
+        raise Exception("Failed to download model from S3")
+
+# -----------------------------
+# Load Model
+# -----------------------------
+
+download_model()
+model = joblib.load(LOCAL_MODEL_PATH)
+
+# -----------------------------
+# FastAPI App
+# -----------------------------
+
 app = FastAPI(title="Seattle Weather Prediction API")
 
-# -----------------------------
-# 3️⃣ Define Request Schema
-# -----------------------------
+# Request Schema
 class WeatherInput(BaseModel):
     precipitation: float
     temp_max: float
     temp_min: float
     wind: float
 
-# -----------------------------
-# 4️⃣ Prediction Endpoint
-# -----------------------------
+# Prediction Endpoint
 @app.post("/predict")
 def predict(data: WeatherInput):
 
     try:
         input_df = pd.DataFrame([data.dict()])
+
         prediction = model.predict(input_df)
 
-        # Convert to Python native type
-        pred_value = prediction[0]
-
-        with mlflow.start_run(run_name="inference_run"):
-            mlflow.log_params(data.dict())
-
-            # Only log metric if numeric
-            if isinstance(pred_value, (int, float)):
-                mlflow.log_metric("prediction", float(pred_value))
-            else:
-                mlflow.set_tag("prediction", str(pred_value))
-
         return {
-            "prediction": str(pred_value)
+            "prediction": str(prediction[0])
         }
 
     except Exception as e:
         return {"error": str(e)}
+
 # -----------------------------
-# 5️⃣ Run Server
+# Server Start
 # -----------------------------
+
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000
+    )
