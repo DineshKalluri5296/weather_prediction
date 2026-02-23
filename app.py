@@ -12,11 +12,11 @@ import mlflow
 # -----------------------------
 
 BUCKET_NAME = "seattle-ml-app"
-MODEL_KEY = "models/latest/model.pkl"
+MODEL_KEY = "model.pkl"
 LOCAL_MODEL_PATH = "model.pkl"
 
 MLFLOW_TRACKING_URI = "http://98.80.75.155:5000/"
-EXPERIMENT_NAME = "Seattle_weather123"
+EXPERIMENT_NAME = "Seattle_weather52"
 
 app = FastAPI(title="Seattle Weather Prediction API")
 
