@@ -13,7 +13,7 @@ model = joblib.load("model.pkl")
 mlflow.set_tracking_uri("http://98.80.75.155:5000/")
 
 # Optional: create separate experiment for inference logs
-mlflow.set_experiment("Seattle_weather_prediction23")
+mlflow.set_experiment("Seattle_weather_prediction12")
 
 # # Load latest model version
 # model_name = "SeattleWeatherModel"
