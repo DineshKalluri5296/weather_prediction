@@ -12,10 +12,12 @@ pipeline {
     stages {
 
         stage('Checkout Code') {
-            steps {
-                git 'https://github.com/your-username/mlops-seattle-project.git'
-            }
-        }
+           steps {
+              git branch: 'main',
+              credentialsId: 'github-credentials',
+              url: 'https://github.com/DineshKalluri5296/weather_prediction.git'
+             }
+          }
 
         stage('Install Python Dependencies') {
             steps {
