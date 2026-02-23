@@ -1,15 +1,15 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 # from sklearn.ensemble import RandomForestClassifier
-# from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+# from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, precision_score, recall_score, f1_score 
 import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import joblib
 
 mlflow.set_tracking_uri("http://100.54.111.135:5000")   
-mlflow.set_experiment("Seattle_weather52")
+mlflow.set_experiment("Seattle_weather_prediction33")
 
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
@@ -30,7 +30,7 @@ with mlflow.start_run() as run:
     #     random_state=42
     # )
     model=LogisticRegression()
-    # model=DecisionTreeClassifier()
+    model=DecisionTreeClassifier()
     model.fit(X_train, y_train)
 
     pred = model.predict(X_test)
@@ -74,7 +74,7 @@ latest_version = client.get_latest_versions("SeattleWeatherModel5")[0].version
 client.update_model_version(
     name="SeattleWeatherModel5",
     version=latest_version,
-    description=" LogisticRegression model trained on Seattle weather dataset"
+    description="DecisionTreeClassifier model trained on Seattle weather dataset"
 )
 
 print(f"Model Version {latest_version} updated with description successfully!")
