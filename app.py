@@ -62,17 +62,33 @@ class WeatherInput(BaseModel):
 def predict(data: WeatherInput):
 
     try:
+
         input_df = pd.DataFrame([data.dict()])
 
         prediction = model.predict(input_df)
 
+        pred_value = prediction[0]
+
+        # MLflow inference logging
+        mlflow.set_tracking_uri("http://98.80.75.155:5000/")
+        mlflow.set_experiment("Seattle_weather_prediction12")
+
+        with mlflow.start_run(run_name="fastapi_inference"):
+
+            mlflow.log_params(data.dict())
+
+            if isinstance(pred_value, (int, float)):
+                mlflow.log_metric("prediction", float(pred_value))
+
+            else:
+                mlflow.set_tag("prediction", str(pred_value))
+
         return {
-            "prediction": str(prediction[0])
+            "prediction": str(pred_value)
         }
 
     except Exception as e:
         return {"error": str(e)}
-
 # -----------------------------
 # Server Start
 # -----------------------------
