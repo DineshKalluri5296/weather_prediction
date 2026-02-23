@@ -1,22 +1,16 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-# from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 # from sklearn.tree import DecisionTreeClassifier
-from sklearn.linear_model import LogisticRegression
+# from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import joblib
 
-# -----------------------------
-# 1️⃣ Set MLflow Tracking Server
-# -----------------------------
-mlflow.set_tracking_uri("http://98.80.75.155:5000/")   
-mlflow.set_experiment("Seattle_weather_prediction23")
+mlflow.set_tracking_uri("http://100.54.111.135:5000")   
+mlflow.set_experiment("Seattle_weather1")
 
-# -----------------------------
-# 2️⃣ Load Dataset
-# -----------------------------
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
 
@@ -27,17 +21,15 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# -----------------------------
-# 3️⃣ Start MLflow Run
-# -----------------------------
+
 with mlflow.start_run() as run:
 
-   # model = RandomForestClassifier(
-    #     n_estimators=100,
-    #     max_depth=10,
-    #     random_state=42
-    # )
-    model=LogisticRegression()
+    model = RandomForestClassifier(
+        n_estimators=100,
+        max_depth=10,
+        random_state=42
+    )
+    # model=LogisticRegression()
 
     model.fit(X_train, y_train)
 
@@ -55,7 +47,7 @@ with mlflow.start_run() as run:
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path="model",
-        registered_model_name="SeattleWeatherModel"
+        registered_model_name="SeattleWeatherModel5"
     )
     joblib.dump(model, "model.pkl")
     print("Model saved locally as model.pkl")
@@ -64,11 +56,11 @@ with mlflow.start_run() as run:
 # -----------------------------
 client = MlflowClient()
 
-latest_version = client.get_latest_versions("SeattleWeatherModel")[0].version
+latest_version = client.get_latest_versions("SeattleWeatherModel5")[0].version
 client.update_model_version(
-    name="SeattleWeatherModel",
+    name="SeattleWeatherModel5",
     version=latest_version,
-    description="Logisticregression model trained on Seattle weather dataset"
+    description="Randomforestclassifier model trained on Seattle weather dataset"
 )
 
 print(f"Model Version {latest_version} updated with description successfully!")
