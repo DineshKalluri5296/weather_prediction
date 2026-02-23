@@ -72,30 +72,34 @@ class WeatherInput(BaseModel):
 def predict(data: WeatherInput):
 
     try:
-
         global model
 
         if model is None:
             return {"error": "Model not loaded"}
 
+        mlflow.set_tracking_uri("http://98.80.75.155:5000/")
+
+        experiment_name = "Seattle_weather_prediction12"
+
+        # Create experiment if not exists
+        experiment = mlflow.get_experiment_by_name(experiment_name)
+        if experiment is None:
+            mlflow.create_experiment(experiment_name)
+
+        mlflow.set_experiment(experiment_name)
+
         input_df = pd.DataFrame([data.dict()])
         prediction = model.predict(input_df)
 
-        pred_value = prediction[0]
+        pred_value = float(prediction[0])
 
-        mlflow.set_tracking_uri("http://98.80.75.155:5000/")
-        mlflow.set_experiment("Seattle_weather_prediction12")
-
-        with mlflow.start_run(run_name="fastapi_inference"):
+        # Logging inference metrics safely
+        with mlflow.start_run(run_name="fastapi_inference", nested=False):
 
             mlflow.log_params(data.dict())
+            mlflow.log_metric("prediction", pred_value)
 
-            if isinstance(pred_value, (int, float)):
-                mlflow.log_metric("prediction", float(pred_value))
-            else:
-                mlflow.set_tag("prediction", str(pred_value))
-
-        return {"prediction": str(pred_value)}
+        return {"prediction": pred_value}
 
     except Exception as e:
         return {"error": str(e)}
