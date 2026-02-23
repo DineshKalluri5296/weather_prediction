@@ -22,7 +22,7 @@ pipeline {
         stage('Install Python Dependencies') {
             steps {
                 sh '''
-                pip3 install -r app/requirements.txt
+                pip3 install -r requirements.txt
                 '''
             }
         }
