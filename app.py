@@ -6,13 +6,18 @@ import uvicorn
 import joblib
 import os
 import mlflow
-# -----------------------------
-# S3 Model Configuration
-# -----------------------------
 
 BUCKET_NAME = "seattle-ml-app"
 MODEL_KEY = "models/latest/model.pkl"
 LOCAL_MODEL_PATH = "model.pkl"
+
+app = FastAPI(title="Seattle Weather Prediction API")
+
+model = None
+
+# -----------------------------
+# Download Model
+# -----------------------------
 
 def download_model():
 
@@ -20,56 +25,64 @@ def download_model():
         print("Model already exists locally.")
         return
 
+    s3 = boto3.client("s3")
+
+    print("Downloading model from S3...")
+
+    s3.download_file(
+        BUCKET_NAME,
+        MODEL_KEY,
+        LOCAL_MODEL_PATH
+    )
+
+    print("Model downloaded successfully.")
+
+# -----------------------------
+# Startup Event
+# -----------------------------
+
+@app.on_event("startup")
+def load_model():
+
+    global model
+
     try:
-        s3 = boto3.client("s3")
-
-        print("Downloading model from S3...")
-
-        s3.download_file(
-            BUCKET_NAME,
-            MODEL_KEY,
-            LOCAL_MODEL_PATH
-        )
-
-        print("Model downloaded successfully.")
+        download_model()
+        model = joblib.load(LOCAL_MODEL_PATH)
+        print("Model loaded successfully")
 
     except Exception as e:
-        print("S3 Model Download Error:", str(e))
-        raise Exception("Failed to download model from S3")
+        print("Model Loading Error:", str(e))
 
 # -----------------------------
-# Load Model
-# -----------------------------
-
-download_model()
-model = joblib.load(LOCAL_MODEL_PATH)
-
-# -----------------------------
-# FastAPI App
-# -----------------------------
-
-app = FastAPI(title="Seattle Weather Prediction API")
-
 # Request Schema
+# -----------------------------
+
 class WeatherInput(BaseModel):
     precipitation: float
     temp_max: float
     temp_min: float
     wind: float
 
+# -----------------------------
 # Prediction Endpoint
+# -----------------------------
+
 @app.post("/predict")
 def predict(data: WeatherInput):
 
     try:
 
-        input_df = pd.DataFrame([data.dict()])
+        global model
 
+        if model is None:
+            return {"error": "Model not loaded"}
+
+        input_df = pd.DataFrame([data.dict()])
         prediction = model.predict(input_df)
 
         pred_value = prediction[0]
 
-        # MLflow inference logging
         mlflow.set_tracking_uri("http://98.80.75.155:5000/")
         mlflow.set_experiment("Seattle_weather_prediction12")
 
@@ -79,23 +92,17 @@ def predict(data: WeatherInput):
 
             if isinstance(pred_value, (int, float)):
                 mlflow.log_metric("prediction", float(pred_value))
-
             else:
                 mlflow.set_tag("prediction", str(pred_value))
 
-        return {
-            "prediction": str(pred_value)
-        }
+        return {"prediction": str(pred_value)}
 
     except Exception as e:
         return {"error": str(e)}
+
 # -----------------------------
 # Server Start
 # -----------------------------
 
 if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8000))
