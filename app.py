@@ -85,7 +85,7 @@ def log_inference_metrics(data_dict, prediction_value):
             mlflow.create_experiment(EXPERIMENT_NAME)
 
         mlflow.set_experiment(EXPERIMENT_NAME)
-        run_name = "prediction_" + datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
+        # run_name = "prediction_" + datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
         with mlflow.start_run(run_name="fastapi_inference"):
 
             # Log input features
