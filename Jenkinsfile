@@ -35,6 +35,17 @@ pipeline {
             }
         }
 
+        stage('Upload Model to S3') {
+           steps {
+              withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+              credentialsId: 'aws-credentials']]) {
+              sh '''
+              aws s3 cp model.pkl s3://your-s3-bucket-name/models/${BUILD_NUMBER}/model.pkl
+              '''
+              }
+          }
+     }
+
         stage('Build Docker Image') {
             steps {
                 sh '''
