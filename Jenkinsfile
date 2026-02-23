@@ -30,7 +30,6 @@ pipeline {
         stage('Train ML Model') {
             steps {
                 sh '''
-                cd app
                 python3 model.py
                 '''
             }
