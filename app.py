@@ -74,7 +74,6 @@ class WeatherInput(BaseModel):
 # -----------------------------
 # Async MLflow Inference Logger
 # -----------------------------
-
 def log_inference_metrics(data_dict, prediction_value):
 
     try:
@@ -88,8 +87,12 @@ def log_inference_metrics(data_dict, prediction_value):
         mlflow.set_experiment(EXPERIMENT_NAME)
 
         with mlflow.start_run(run_name="fastapi_inference"):
+
+            # Log input features
             mlflow.log_params(data_dict)
-            mlflow.log_metric("prediction", prediction_value)
+
+            # Log prediction as tag (NOT metric)
+            mlflow.set_tag("prediction", str(prediction_value))
 
     except Exception as e:
         print("MLflow Logging Error:", str(e))
