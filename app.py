@@ -1,15 +1,22 @@
 import boto3
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 import uvicorn
 import joblib
 import os
 import mlflow
 
+# -----------------------------
+# Configuration
+# -----------------------------
+
 BUCKET_NAME = "seattle-ml-app"
 MODEL_KEY = "models/latest/model.pkl"
 LOCAL_MODEL_PATH = "model.pkl"
+
+MLFLOW_TRACKING_URI = "http://98.80.75.155:5000/"
+EXPERIMENT_NAME = "Seattle_weather_prediction567"
 
 app = FastAPI(title="Seattle Weather Prediction API")
 
@@ -38,7 +45,7 @@ def download_model():
     print("Model downloaded successfully.")
 
 # -----------------------------
-# Startup Event
+# Load Model at Startup
 # -----------------------------
 
 @app.on_event("startup")
@@ -65,11 +72,34 @@ class WeatherInput(BaseModel):
     wind: float
 
 # -----------------------------
-# Prediction Endpoint
+# Async MLflow Inference Logger
+# -----------------------------
+
+def log_inference_metrics(data_dict, prediction_value):
+
+    try:
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+
+        experiment = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
+
+        if experiment is None:
+            mlflow.create_experiment(EXPERIMENT_NAME)
+
+        mlflow.set_experiment(EXPERIMENT_NAME)
+
+        with mlflow.start_run(run_name="fastapi_inference"):
+            mlflow.log_params(data_dict)
+            mlflow.log_metric("prediction", prediction_value)
+
+    except Exception as e:
+        print("MLflow Logging Error:", str(e))
+
+# -----------------------------
+# Prediction Endpoint (Non-blocking inference)
 # -----------------------------
 
 @app.post("/predict")
-def predict(data: WeatherInput):
+def predict(data: WeatherInput, background_tasks: BackgroundTasks):
 
     try:
         global model
@@ -77,29 +107,21 @@ def predict(data: WeatherInput):
         if model is None:
             return {"error": "Model not loaded"}
 
-        mlflow.set_tracking_uri("http://98.80.75.155:5000/")
-
-        experiment_name = "Seattle_weather_prediction12"
-
-        # Create experiment if not exists
-        experiment = mlflow.get_experiment_by_name(experiment_name)
-        if experiment is None:
-            mlflow.create_experiment(experiment_name)
-
-        mlflow.set_experiment(experiment_name)
-
         input_df = pd.DataFrame([data.dict()])
         prediction = model.predict(input_df)
 
         pred_value = float(prediction[0])
 
-        # Logging inference metrics safely
-        with mlflow.start_run(run_name="fastapi_inference", nested=False):
+        # Background MLflow logging (non-blocking)
+        background_tasks.add_task(
+            log_inference_metrics,
+            data.dict(),
+            pred_value
+        )
 
-            mlflow.log_params(data.dict())
-            mlflow.log_metric("prediction", pred_value)
-
-        return {"prediction": pred_value}
+        return {
+            "prediction": pred_value
+        }
 
     except Exception as e:
         return {"error": str(e)}
