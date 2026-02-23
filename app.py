@@ -85,7 +85,7 @@ def log_inference_metrics(data_dict, prediction_value):
             mlflow.create_experiment(EXPERIMENT_NAME)
 
         mlflow.set_experiment(EXPERIMENT_NAME)
-
+        run_name = "prediction_" + datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
         with mlflow.start_run(run_name="fastapi_inference"):
 
             # Log input features
@@ -100,7 +100,6 @@ def log_inference_metrics(data_dict, prediction_value):
 # -----------------------------
 # Prediction Endpoint (Non-blocking inference)
 # -----------------------------
-
 @app.post("/predict")
 def predict(data: WeatherInput, background_tasks: BackgroundTasks):
 
@@ -113,9 +112,9 @@ def predict(data: WeatherInput, background_tasks: BackgroundTasks):
         input_df = pd.DataFrame([data.dict()])
         prediction = model.predict(input_df)
 
-        pred_value = float(prediction[0])
+        pred_value = prediction[0]
 
-        # Background MLflow logging (non-blocking)
+        # Auto create MLflow run for every prediction request
         background_tasks.add_task(
             log_inference_metrics,
             data.dict(),
@@ -128,7 +127,6 @@ def predict(data: WeatherInput, background_tasks: BackgroundTasks):
 
     except Exception as e:
         return {"error": str(e)}
-
 # -----------------------------
 # Server Start
 # -----------------------------
