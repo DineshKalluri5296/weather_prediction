@@ -6,32 +6,29 @@ pipeline {
         ECR_REPO = "seattle-ml-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
         ACCOUNT_ID = "079032833883"
-        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        FULL_IMAGE_NAME = "${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}"
     }
 
     stages {
 
         stage('Checkout Code') {
-           steps {
-              git branch: 'main',
-              credentialsId: 'github-credentials',
-              url: 'https://github.com/DineshKalluri5296/weather_prediction.git'
-             }
-          }
-
-        stage('Install Python Dependencies') {
             steps {
-                sh '''
-                pip3 install -r requirements.txt
-                '''
+                git branch: 'main',
+                    credentialsId: 'github-credentials',
+                    url: 'https://github.com/DineshKalluri5296/weather_prediction.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'python3 -m pip install -r requirements.txt'
             }
         }
 
         stage('Train ML Model') {
             steps {
-                sh '''
-                python3 model.py
-                '''
+                sh 'python3 model.py'
             }
         }
 
@@ -45,12 +42,13 @@ pipeline {
               }
           }
      }
-
+        
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t ${ECR_REPO}:${IMAGE_TAG} .
-                docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}
+                echo "Building Docker Image..."
+                docker build -t ${FULL_IMAGE_NAME} .
+                docker images
                 '''
             }
         }
@@ -69,7 +67,10 @@ pipeline {
 
         stage('Push Image to ECR') {
             steps {
-                sh 'docker push ${ECR_URI}:${IMAGE_TAG}'
+                sh '''
+                echo "Pushing Image..."
+                docker push ${FULL_IMAGE_NAME}
+                '''
             }
         }
 
@@ -80,7 +81,7 @@ pipeline {
                 docker rm seattle-container || true
                 docker run -d -p 8000:8000 \
                 --name seattle-container \
-                ${ECR_URI}:${IMAGE_TAG}
+                ${FULL_IMAGE_NAME}
                 '''
             }
         }
