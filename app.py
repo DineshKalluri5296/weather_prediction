@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import uvicorn
 import joblib
 import os
-
+import mlflow
 # -----------------------------
 # S3 Model Configuration
 # -----------------------------
