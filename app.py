@@ -202,7 +202,7 @@ def load_model():
 
     # If you saved accuracy during training, set it here
     # Replace 0.87 with actual value if available
-    model_accuracy.set(0.87)
+    model_accuracy.set(0.832)
 
 
 # -----------------------------
