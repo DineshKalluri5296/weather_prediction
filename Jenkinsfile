@@ -85,7 +85,6 @@ pipeline {
                 '''
             }
         }
-    }
         stage('Deploy Node Exporter') {
             steps {
                 sh '''
