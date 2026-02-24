@@ -86,6 +86,49 @@ pipeline {
             }
         }
     }
+        stage('Deploy Node Exporter') {
+            steps {
+                sh '''
+                docker stop node-exporter || true
+                docker rm node-exporter || true
+
+                docker run -d \
+                --name node-exporter \
+                -p 9100:9100 \
+                prom/node-exporter
+                '''
+            }
+        }
+
+        stage('Deploy Prometheus') {
+            steps {
+                sh '''
+                docker stop prometheus || true
+                docker rm prometheus || true
+
+                docker run -d \
+                --name prometheus \
+                -p 9090:9090 \
+                -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
+                prom/prometheus
+                '''
+            }
+        }
+
+        stage('Deploy Grafana') {
+            steps {
+                sh '''
+                docker stop grafana || true
+                docker rm grafana || true
+
+                docker run -d \
+                --name grafana \
+                -p 3000:3000 \
+                grafana/grafana
+                '''
+            }
+        }
+    } 
 
     post {
         success {
