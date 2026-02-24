@@ -9,7 +9,7 @@ from mlflow.tracking import MlflowClient
 import joblib
 
 mlflow.set_tracking_uri("http://3.88.182.216:5000")   
-mlflow.set_experiment("Seattle_weather_prediction15")
+mlflow.set_experiment("Seattle_weather_prediction115")
 
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
@@ -61,7 +61,7 @@ with mlflow.start_run() as run:
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path="model",
-        registered_model_name="SeattleWeatherModel5"
+        registered_model_name="SeattleWeatherModel15"
     )
     # joblib.dump(model, "model.pkl")
     print("Model saved locally as model.pkl")
@@ -70,9 +70,9 @@ with mlflow.start_run() as run:
 # -----------------------------
 client = MlflowClient()
 
-latest_version = client.get_latest_versions("SeattleWeatherModel5")[0].version
+latest_version = client.get_latest_versions("SeattleWeatherModel15")[0].version
 client.update_model_version(
-    name="SeattleWeatherModel5",
+    name="SeattleWeatherModel15",
     version=latest_version,
     description="LogisticRegressionClassifier model trained on Seattle weather dataset"
 )
