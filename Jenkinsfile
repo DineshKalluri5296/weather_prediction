@@ -87,6 +87,8 @@ pipeline {
         stage('Deploy FastAPI Container') {
             steps {
                 sh '''
+
+                docker rm -f seattle-container || true
                 docker run -d \
                   --name seattle-container \
                   --network monitoring-network \
@@ -99,6 +101,7 @@ pipeline {
         stage('Deploy Node Exporter') {
             steps {
                 sh '''
+                docker rm -f node-exporter || true
                 docker run -d \
                   --name node-exporter \
                   --network monitoring-network \
@@ -111,6 +114,7 @@ pipeline {
         stage('Deploy Prometheus') {
             steps {
                 sh '''
+                docker rm -f prometheus || true
                 docker run -d \
                   --name prometheus \
                   --network monitoring-network \
@@ -124,6 +128,7 @@ pipeline {
         stage('Deploy Grafana') {
             steps {
                 sh '''
+                docker rm -f grafana || true
                 docker run -d \
                   --name grafana \
                   --network monitoring-network \
