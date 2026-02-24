@@ -107,18 +107,6 @@ def predict(data: WeatherInput):
         latency = time.time() - start_time
         prediction_latency.observe(latency)
 
-        # ✅ SAFE MLflow logging
-        try:
-            with mlflow.start_run(nested=True):
-                mlflow.log_param("precipitation", data.precipitation)
-                mlflow.log_param("temp_max", data.temp_max)
-                mlflow.log_param("temp_min", data.temp_min)
-                mlflow.log_param("wind", data.wind)
-                mlflow.log_metric("prediction_latency", latency)
-                mlflow.log_metric("prediction_output", float(prediction))
-        except Exception as e:
-            print("MLflow logging failed:", str(e))
-
         return {
             "prediction": str(prediction),
             "latency_seconds": latency
