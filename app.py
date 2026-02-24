@@ -155,8 +155,8 @@ BUCKET_NAME = "seattle-ml-app"
 MODEL_KEY = "model.pkl"
 LOCAL_MODEL_PATH = "model.pkl"
 
-MLFLOW_TRACKING_URI = "http://98.80.75.155:5000/"
-EXPERIMENT_NAME = "Seattle_weather_prediction33"
+MLFLOW_TRACKING_URI = "http://3.88.182.216:5000"
+EXPERIMENT_NAME = "Seattle_weather_prediction13"
 
 app = FastAPI(title="Seattle Weather Prediction API")
 
