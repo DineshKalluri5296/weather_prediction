@@ -109,7 +109,6 @@ def predict(data: WeatherInput):
 
         return {
             "prediction": str(prediction),
-            "latency_seconds": latency
         }
 
     except Exception as e:
