@@ -18,7 +18,8 @@ pipeline {
                     credentialsId: 'github-credentials',
                     url: 'https://github.com/DineshKalluri5296/weather_prediction.git'
             }
-        }
+         }
+    
 
         stage('Install Dependencies') {
             steps {
@@ -131,6 +132,7 @@ pipeline {
                 '''
             }
         }
+    }
 
     post {
         success {
