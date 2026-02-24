@@ -221,38 +221,46 @@ class WeatherInput(BaseModel):
 @app.post("/predict")
 def predict(data: WeatherInput):
 
-    start_time = time.time()
-    prediction_requests.inc()
+    try:
+        global model
 
-    input_df = pd.DataFrame([{
-        "precipitation": data.precipitation,
-        "temp_max": data.temp_max,
-        "temp_min": data.temp_min,
-        "wind": data.wind
-    }])
+        if model is None:
+            return {"error": "Model not loaded"}
 
-    prediction = model.predict(input_df)[0]
+        start_time = time.time()
+        prediction_requests.inc()
 
-    latency = time.time() - start_time
-    prediction_latency.observe(latency)
+        input_df = pd.DataFrame([{
+            "precipitation": data.precipitation,
+            "temp_max": data.temp_max,
+            "temp_min": data.temp_min,
+            "wind": data.wind
+        }])
 
-    # -----------------------------
-    # MLflow Logging (per request)
-    # -----------------------------
-    with mlflow.start_run():
-        mlflow.log_param("precipitation", data.precipitation)
-        mlflow.log_param("temp_max", data.temp_max)
-        mlflow.log_param("temp_min", data.temp_min)
-        mlflow.log_param("wind", data.wind)
-        mlflow.log_metric("prediction_latency", latency)
-        mlflow.log_metric("prediction_output", float(prediction))
+        prediction = model.predict(input_df)[0]
 
-    return {
-        "prediction": str(prediction),
-        "latency_seconds": latency
-    }
+        latency = time.time() - start_time
+        prediction_latency.observe(latency)
 
+        # ✅ SAFE MLflow logging
+        try:
+            with mlflow.start_run(nested=True):
+                mlflow.log_param("precipitation", data.precipitation)
+                mlflow.log_param("temp_max", data.temp_max)
+                mlflow.log_param("temp_min", data.temp_min)
+                mlflow.log_param("wind", data.wind)
+                mlflow.log_metric("prediction_latency", latency)
+                mlflow.log_metric("prediction_output", float(prediction))
+        except Exception as e:
+            print("MLflow logging failed:", str(e))
 
+        return {
+            "prediction": str(prediction),
+            "latency_seconds": latency
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
 # -----------------------------
 # Prometheus Metrics Endpoint
 # -----------------------------
