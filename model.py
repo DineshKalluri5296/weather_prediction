@@ -8,8 +8,8 @@ import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import joblib
 
-mlflow.set_tracking_uri("http://100.54.111.135:5000")   
-mlflow.set_experiment("Seattle_weather_prediction33")
+mlflow.set_tracking_uri("http://3.88.182.216:5000")   
+mlflow.set_experiment("Seattle_weather_prediction13")
 
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
