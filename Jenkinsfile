@@ -88,9 +88,6 @@ pipeline {
         stage('Deploy Node Exporter') {
             steps {
                 sh '''
-                docker stop node-exporter || true
-                docker rm node-exporter || true
-
                 docker run -d \
                 --name node-exporter \
                 -p 9100:9100 \
@@ -102,9 +99,6 @@ pipeline {
         stage('Deploy Prometheus') {
             steps {
                 sh '''
-                docker stop prometheus || true
-                docker rm prometheus || true
-
                 docker run -d \
                 --name prometheus \
                 -p 9090:9090 \
@@ -117,9 +111,6 @@ pipeline {
         stage('Deploy Grafana') {
             steps {
                 sh '''
-                docker stop grafana || true
-                docker rm grafana || true
-
                 docker run -d \
                 --name grafana \
                 -p 3000:3000 \
