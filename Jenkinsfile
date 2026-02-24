@@ -74,24 +74,35 @@ pipeline {
             }
         }
 
-        stage('Deploy Container') {
+        stage('Create Monitoring Network') {
             steps {
                 sh '''
-                docker stop seattle-container || true
-                docker rm seattle-container || true
-                docker run -d -p 8000:8000 \
-                --name seattle-container \
-                ${FULL_IMAGE_NAME}
+                docker network inspect monitoring-network >/dev/null 2>&1 || \
+                docker network create monitoring-network
                 '''
             }
         }
+
+        stage('Deploy FastAPI Container') {
+            steps {
+                sh '''
+                docker run -d \
+                  --name seattle-container \
+                  --network monitoring-network \
+                  -p 8000:8000 \
+                  ${FULL_IMAGE_NAME}
+                '''
+            }
+        }
+
         stage('Deploy Node Exporter') {
             steps {
                 sh '''
                 docker run -d \
-                --name node-exporter \
-                -p 9100:9100 \
-                prom/node-exporter
+                  --name node-exporter \
+                  --network monitoring-network \
+                  -p 9100:9100 \
+                  prom/node-exporter
                 '''
             }
         }
@@ -100,10 +111,11 @@ pipeline {
             steps {
                 sh '''
                 docker run -d \
-                --name prometheus \
-                -p 9090:9090 \
-                -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
-                prom/prometheus
+                  --name prometheus \
+                  --network monitoring-network \
+                  -p 9090:9090 \
+                  -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
+                  prom/prometheus
                 '''
             }
         }
@@ -112,13 +124,13 @@ pipeline {
             steps {
                 sh '''
                 docker run -d \
-                --name grafana \
-                -p 3000:3000 \
-                grafana/grafana
+                  --name grafana \
+                  --network monitoring-network \
+                  -p 3000:3000 \
+                  grafana/grafana
                 '''
             }
         }
-    } 
 
     post {
         success {
