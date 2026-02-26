@@ -8,8 +8,8 @@ import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import joblib
 
-mlflow.set_tracking_uri("http://3.88.182.216:5000")   
-mlflow.set_experiment("Seattle_weather_prediction115")
+mlflow.set_tracking_uri("http://52.54.86.23:5000")   
+mlflow.set_experiment("Seattle_weather_prediction256")
 
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
@@ -29,8 +29,8 @@ with mlflow.start_run() as run:
     #     max_depth=10,
     #     random_state=42
     # )
-    model=LogisticRegression()
-    # model=DecisionTreeClassifier()
+    # model=LogisticRegression()
+    model=DecisionTreeClassifier()
     model.fit(X_train, y_train)
 
     pred = model.predict(X_test)
