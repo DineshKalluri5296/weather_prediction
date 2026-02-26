@@ -29,8 +29,8 @@ with mlflow.start_run() as run:
     #     max_depth=10,
     #     random_state=42
     # )
-    # model=LogisticRegression()
-    model=DecisionTreeClassifier()
+    model=LogisticRegression()
+    # model=DecisionTreeClassifier()
     model.fit(X_train, y_train)
 
     pred = model.predict(X_test)
