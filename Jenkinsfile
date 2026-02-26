@@ -38,7 +38,7 @@ pipeline {
               withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
               credentialsId: 'aws-credentials']]) {
               sh '''
-              aws s3 cp artifacts/model.pkl s3://seattle-ml-app/models/3/model.pkl
+              aws s3 cp model.pkl s3://seattle-ml-app/models/3/model.pkl
               '''
               }
           }
