@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-# from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 # from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, precision_score, recall_score, f1_score 
@@ -74,7 +74,7 @@ latest_version = client.get_latest_versions("SeattleWeatherModel15")[0].version
 client.update_model_version(
     name="SeattleWeatherModel15",
     version=latest_version,
-    description="DecisionTreeClassifier model trained on Seattle weather dataset"
+    description="RandomForestClassifier model trained on Seattle weather dataset"
 )
 
 print(f"Model Version {latest_version} updated with description successfully!")
