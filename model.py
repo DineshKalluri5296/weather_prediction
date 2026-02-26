@@ -74,7 +74,7 @@ latest_version = client.get_latest_versions("SeattleWeatherModel15")[0].version
 client.update_model_version(
     name="SeattleWeatherModel15",
     version=latest_version,
-    description="DecisionTreeClassifier model trained on Seattle weather dataset"
+    description="LogisticRegressionClassifier model trained on Seattle weather dataset"
 )
 
 print(f"Model Version {latest_version} updated with description successfully!")
