@@ -29,8 +29,8 @@ with mlflow.start_run() as run:
     #     max_depth=10,
     #     random_state=42
     # )
-    # model=LogisticRegression()
-    model=DecisionTreeClassifier()
+    model=LogisticRegression()
+    # model=DecisionTreeClassifier()
     model.fit(X_train, y_train)
 
     pred = model.predict(X_test)
@@ -74,7 +74,7 @@ latest_version = client.get_latest_versions("SeattleWeatherModel15")[0].version
 client.update_model_version(
     name="SeattleWeatherModel15",
     version=latest_version,
-    description="DecisionTreeClassifier model trained on Seattle weather dataset"
+    description="LogisticRegression model trained on Seattle weather dataset"
 )
 
 print(f"Model Version {latest_version} updated with description successfully!")
