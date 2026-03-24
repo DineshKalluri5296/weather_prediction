@@ -70,9 +70,9 @@ with mlflow.start_run() as run:
 # -----------------------------
 client = MlflowClient()
 
-latest_version = client.get_latest_versions("SeattleWeatherModel")[0].version
+latest_version = client.get_latest_versions("SeattleWeatherModel15")[0].version
 client.update_model_version(
-    name="SeattleWeatherModel",
+    name="SeattleWeatherModel15",
     version=latest_version,
     description="RandomForestClassifier model trained on Seattle weather dataset"
 )
