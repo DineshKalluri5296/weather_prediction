@@ -1,0 +1,40 @@
+🚀 1. Connect to Your EC2 (Ubuntu)
+ssh -i ~/m.pem ubuntu@<your-public-ip>
+🔹 2. Update System
+sudo apt update && sudo apt upgrade -y
+🔹 3. Install Python & Pip
+sudo apt install python3-pip python3-venv -y
+
+Check:
+
+python3 --version
+pip3 --version
+🔹 4. Create Virtual Environment (Recommended ✅)
+python3 -m venv mlflow-env
+source mlflow-env/bin/activate
+🔹 5. Install MLflow
+pip install mlflow
+
+Verify:
+
+mlflow --version
+🔹 6. mlflow server \
+--host 0.0.0.0 \
+--port 5000 \
+--allowed-hosts '*'
+🌐 7. Access MLflow UI in Browser
+
+Open:
+
+http://<your-ec2-public-ip>:5000
+🔥 IMPORTANT (Don’t Skip)
+Allow Port 5000 in Security Group
+
+Go to:
+👉 Amazon EC2 → Security Group
+
+Add inbound rule:
+
+Type: Custom TCP
+Port: 5000
+Source: 0.0.0.0/0
