@@ -32,8 +32,8 @@ model_accuracy = Gauge(
 # -----------------------------
 # MLflow Config
 # -----------------------------
-mlflow.set_tracking_uri("http://98.93.111.160:5000/")  # <-- your MLflow server
-mlflow.set_experiment("Seattle_weather_prediction20")
+mlflow.set_tracking_uri("http://54.146.30.242:5000/")  # <-- your MLflow server
+mlflow.set_experiment("Seattle_weather_prediction2026")
 
 # -----------------------------
 # S3 Config
