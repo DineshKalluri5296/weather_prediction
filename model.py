@@ -8,8 +8,8 @@ import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import joblib
 
-mlflow.set_tracking_uri("http://98.93.111.160:5000/")   
-mlflow.set_experiment("Seattle_weather_prediction20")
+mlflow.set_tracking_uri("http://54.146.30.242:5000/")   
+mlflow.set_experiment("Seattle_weather_prediction2026")
 
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
@@ -61,7 +61,7 @@ with mlflow.start_run() as run:
     mlflow.sklearn.log_model(
         sk_model=model,
         artifact_path="model",
-        registered_model_name="SeattleWeatherModel15"
+        registered_model_name="SeattleWeatherModel26"
     )
     joblib.dump(model, "model.pkl")
     print("Model saved locally as model.pkl")
@@ -70,11 +70,13 @@ with mlflow.start_run() as run:
 # -----------------------------
 client = MlflowClient()
 
-latest_version = client.get_latest_versions("SeattleWeatherModel15")[0].version
+latest_version = client.get_latest_versions("SeattleWeatherModel26")[0].version
 client.update_model_version(
-    name="SeattleWeatherModel15",
+    name="SeattleWeatherModel26",
     version=latest_version,
     description="RandomForestClassifier model trained on Seattle weather dataset"
+    # description="LogisticRegressionClassifier model trained on Seattle weather dataset"
+    # description="DecisionTreeClassifier model trained on Seattle weather dataset"
 )
 
 print(f"Model Version {latest_version} updated with description successfully!")
