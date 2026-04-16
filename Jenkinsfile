@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = "us-east-1"
         ECR_REPO = "seattle-ml-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        ACCOUNT_ID = "079032833883"
+        ACCOUNT_ID = "440977420038"
         ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         FULL_IMAGE_NAME = "${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}"
     }
