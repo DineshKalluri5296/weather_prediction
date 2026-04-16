@@ -8,7 +8,7 @@ import mlflow.sklearn
 from mlflow.tracking import MlflowClient
 import joblib
 
-mlflow.set_tracking_uri("http://54.146.30.242:5000/")   
+mlflow.set_tracking_uri("http://54.242.227.169:5000/")   
 mlflow.set_experiment("Seattle_weather_prediction2026")
 
 df = pd.read_csv("seattle-weather.csv")
@@ -24,12 +24,12 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 with mlflow.start_run() as run:
 
-    model = RandomForestClassifier(
-        n_estimators=100,
-        max_depth=10,
-        random_state=42
-    )
-    # model=LogisticRegression()
+    # model = RandomForestClassifier(
+    #     n_estimators=100,
+    #     max_depth=10,
+    #     random_state=42
+    # )
+    model=LogisticRegression()
     # model=DecisionTreeClassifier()
     model.fit(X_train, y_train)
 
@@ -74,8 +74,8 @@ latest_version = client.get_latest_versions("SeattleWeatherModel26")[0].version
 client.update_model_version(
     name="SeattleWeatherModel26",
     version=latest_version,
-    description="RandomForestClassifier model trained on Seattle weather dataset"
-    # description="LogisticRegressionClassifier model trained on Seattle weather dataset"
+    # description="RandomForestClassifier model trained on Seattle weather dataset"
+    description="LogisticRegressionClassifier model trained on Seattle weather dataset"
     # description="DecisionTreeClassifier model trained on Seattle weather dataset"
 )
 
