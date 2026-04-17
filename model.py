@@ -9,7 +9,7 @@ from mlflow.tracking import MlflowClient
 import joblib
 
 mlflow.set_tracking_uri("http://34.224.91.74:5000/")   
-mlflow.set_experiment("Seattle_weather_prediction201")
+mlflow.set_experiment("Seattle_weather_prediction_FIXED_2026")
 
 df = pd.read_csv("seattle-weather.csv")
 df = df.dropna()
