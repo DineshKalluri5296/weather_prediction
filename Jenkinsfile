@@ -165,7 +165,9 @@ environment {
 }
 
 tools {
-    sonarScanner 'SonarScanner'
+    
+    sonarQubeScanner 'SonarScanner'
+
 }
 
 stages {
