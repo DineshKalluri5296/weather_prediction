@@ -212,7 +212,7 @@ stages {
 
     stage('Train ML Model') {
         steps {
-            sh 'python3 train.py'
+            sh 'python3 model.py'
         }
     }
 
