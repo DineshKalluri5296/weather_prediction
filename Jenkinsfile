@@ -156,7 +156,7 @@ pipeline {
     agent any
 
     tools {
-        sonarScanner 'SonarQubeScanner'
+        sonarRunner 'SonarQubeScanner'
     }
 
     environment {
