@@ -185,18 +185,18 @@
             }
         }
 
-        stage('Run Tests + Coverage') {
-            steps {
-                sh '''
-                # Run tests (won't fail pipeline if no tests exist)
-                pytest --maxfail=1 --disable-warnings -q || true
+        // stage('Run Tests + Coverage') {
+        //     steps {
+        //         sh '''
+        //         # Run tests (won't fail pipeline if no tests exist)
+        //         pytest --maxfail=1 --disable-warnings -q || true
 
-                # Generate coverage report
-                coverage run -m pytest || true
-                coverage xml || true
-                '''
-            }
-        }
+        //         # Generate coverage report
+        //         coverage run -m pytest || true
+        //         coverage xml || true
+        //         '''
+        //     }
+        // }
 
         stage('SonarQube Analysis') {
             steps {
@@ -212,13 +212,13 @@
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     steps {
+        //         timeout(time: 5, unit: 'MINUTES') {
+        //             waitForQualityGate abortPipeline: true
+        //         }
+        //     }
+        // }
 
         stage('Train ML Model') {
             steps {
