@@ -164,11 +164,11 @@ environment {
     FULL_IMAGE_NAME = "${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}"
 }
 
-tools {
+// tools {
     
-    sonarQubeScanner 'SonarScanner'
+//     sonarQubeScanner 'SonarScanner'
 
-}
+// }
 
 stages {
 
