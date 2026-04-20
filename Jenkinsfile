@@ -155,7 +155,6 @@
 pipeline {
 agent any
 
-```
 environment {
     AWS_REGION = "us-east-1"
     ECR_REPO = "seattle-ml-app"
@@ -315,15 +314,14 @@ stages {
 
 post {
     success {
-        echo "✅ Deployment Successful with SonarQube Quality Gate 🚀"
+        echo "✅ Deployment Successful 🚀"
     }
     failure {
-        echo "❌ Pipeline Failed — Check Logs"
+        echo "❌ Pipeline Failed"
     }
 }
 
 }
-
 
 
 
