@@ -155,10 +155,6 @@
 pipeline {
     agent any
 
-    tools {
-        sonarRunner 'SonarQubeScanner'
-    }
-
     environment {
         AWS_REGION = "us-east-1"
         ECR_REPO = "seattle-ml-app"
@@ -167,7 +163,7 @@ pipeline {
         ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         FULL_IMAGE_NAME = "${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}"
 
-        // ✅ Secure token from Jenkins credentials
+        // ✅ Sonar token from Jenkins credentials
         SONAR_AUTH_TOKEN = credentials('sonar-token')
     }
 
@@ -187,7 +183,7 @@ pipeline {
             }
         }
 
-        // 🔍 SONARQUBE SCAN
+        // 🔍 SONARQUBE SCAN (FIXED)
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -202,7 +198,7 @@ pipeline {
             }
         }
 
-        // ✅ QUALITY GATE
+        // ✅ QUALITY GATE (optional but recommended)
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -320,7 +316,7 @@ pipeline {
             echo "✅ Deployment Successful with SonarQube Quality Check 🚀"
         }
         failure {
-            echo "❌ Pipeline Failed (Check SonarQube or Logs)"
+            echo "❌ Pipeline Failed (Check SonarQube / Logs)"
         }
     }
 }
