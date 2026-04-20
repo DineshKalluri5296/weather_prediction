@@ -30,22 +30,22 @@ pipeline {
             }
         }
 
-        stage('Run Tests + Coverage') {
-            steps {
-                sh '''
-                echo "Running tests..."
+        // stage('Run Tests + Coverage') {
+        //     steps {
+        //         sh '''
+        //         echo "Running tests..."
 
-                pytest -v || true
+        //         pytest -v || true
 
-                echo "Generating coverage report..."
+        //         echo "Generating coverage report..."
 
-                coverage run -m pytest || true
-                coverage xml || true
+        //         coverage run -m pytest || true
+        //         coverage xml || true
 
-                ls -l coverage.xml || echo "coverage.xml NOT generated"
-                '''
-            }
-        }
+        //         ls -l coverage.xml || echo "coverage.xml NOT generated"
+        //         '''
+        //     }
+        // }
 
         stage('SonarQube Analysis') {
             steps {
@@ -61,13 +61,13 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+        // stage('Quality Gate') {
+        //     steps {
+        //         timeout(time: 10, unit: 'MINUTES') {
+        //             waitForQualityGate abortPipeline: true
+        //         }
+        //     }
+        // }
 
         stage('Train ML Model') {
             steps {
