@@ -30,23 +30,6 @@ pipeline {
             }
         }
 
-        // stage('Run Tests + Coverage') {
-        //     steps {
-        //         sh '''
-        //         echo "Running tests..."
-
-        //         pytest -v || true
-
-        //         echo "Generating coverage report..."
-
-        //         coverage run -m pytest || true
-        //         coverage xml || true
-
-        //         ls -l coverage.xml || echo "coverage.xml NOT generated"
-        //         '''
-        //     }
-        // }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -54,33 +37,36 @@ pipeline {
                     ${tool 'SonarScanner'}/bin/sonar-scanner \
                     -Dsonar.projectKey=weather-prediction \
                     -Dsonar.sources=. \
-                    -Dsonar.python.version=3 \
-                    -Dsonar.python.coverage.reportPaths=coverage.xml
+                    -Dsonar.python.version=3
                     """
                 }
             }
         }
 
-        // stage('Quality Gate') {
-        //     steps {
-        //         timeout(time: 10, unit: 'MINUTES') {
-        //             waitForQualityGate abortPipeline: true
-        //         }
-        //     }
-        // }
-
-        stage('Train ML Model') {
-            steps {
-                sh 'python3 model.py'
-            }
-        }
-
-        stage('Upload Model to S3') {
+        stage('Train Model + Upload to S3 (Only First Time)') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                 credentialsId: 'aws-credentials']]) {
+
                     sh '''
-                    aws s3 cp model.pkl s3://seattle-ml-app/models/${BUILD_NUMBER}/model.pkl
+                    MODEL_PATH="s3://seattle-ml-app/models/latest/model.pkl"
+
+                    echo "Checking if model exists in S3..."
+
+                    aws s3 ls ${MODEL_PATH} >/dev/null 2>&1
+
+                    if [ $? -eq 0 ]; then
+                        echo "✅ Model already exists. Skipping training & upload."
+                    else
+                        echo "🚀 Training model..."
+
+                        python3 model.py
+
+                        echo "📦 Uploading model to S3..."
+                        aws s3 cp model.pkl ${MODEL_PATH}
+
+                        echo "✅ Model uploaded successfully."
+                    fi
                     '''
                 }
             }
