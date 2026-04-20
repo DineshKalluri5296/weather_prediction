@@ -43,26 +43,29 @@ pipeline {
             }
         }
 
-        stage('Train Model + Upload to S3 (Only First Time)') {
+        stage('Train Model + Upload to S3 (Only First Run)') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                 credentialsId: 'aws-credentials']]) {
 
                     sh '''
+                    set +e
+
                     MODEL_PATH="s3://seattle-ml-app/models/latest/model.pkl"
 
-                    echo "Checking if model exists in S3..."
+                    echo "🔍 Checking if model exists in S3..."
 
                     aws s3 ls ${MODEL_PATH} >/dev/null 2>&1
 
                     if [ $? -eq 0 ]; then
-                        echo "✅ Model already exists. Skipping training & upload."
+                        echo "✅ Model already exists. Skipping training."
                     else
                         echo "🚀 Training model..."
 
                         python3 model.py
 
                         echo "📦 Uploading model to S3..."
+
                         aws s3 cp model.pkl ${MODEL_PATH}
 
                         echo "✅ Model uploaded successfully."
@@ -82,6 +85,7 @@ pipeline {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                 credentialsId: 'aws-credentials']]) {
+
                     sh '''
                     aws ecr get-login-password --region ${AWS_REGION} | \
                     docker login --username AWS --password-stdin ${ECR_URI}
